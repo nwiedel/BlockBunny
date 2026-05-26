@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import de.nicolas.config.GameConfig;
 import de.nicolas.handlers.GameStateManager;
+import de.nicolas.handlers.MyContactListener;
 
 public class Play extends GameState {
 
@@ -20,6 +21,8 @@ public class Play extends GameState {
         super(gsm);
 
         world = new World(new Vector2(0, -9.81f), true);
+        world.setContactListener(new MyContactListener());
+
         debugRenderer = new Box2DDebugRenderer();
 
         // Platform erstellen
@@ -33,7 +36,9 @@ public class Play extends GameState {
 
         FixtureDef fdef = new FixtureDef();
         fdef.shape = shape;
-        body.createFixture(fdef);
+        fdef.filter.categoryBits = GameConfig.BIT_GROUND;
+        fdef.filter.maskBits = GameConfig.BIT_BOX | GameConfig.BIT_BALL;
+        body.createFixture(fdef).setUserData("ground");
 
         // fallende Box erstellen
         bdef.position.set(160 / PPM, 200 / PPM);
@@ -43,8 +48,21 @@ public class Play extends GameState {
         shape.setAsBox(5 / PPM, 5 / PPM);
 
         fdef.shape = shape;
-        fdef.restitution = 0.5f;
-        body.createFixture(fdef);
+        fdef.filter.categoryBits = GameConfig.BIT_BOX;
+        fdef.filter.maskBits = GameConfig.BIT_GROUND;
+        body.createFixture(fdef).setUserData("box");
+
+        // fallenden Ball erstellen
+        bdef.position.set(153 / PPM, 220 / PPM);
+        //bdef.type = BodyDef.BodyType.DynamicBody;
+        body = world.createBody(bdef);
+
+        CircleShape cShape = new CircleShape();
+        cShape.setRadius(5 / PPM);
+        fdef.shape = cShape;
+        fdef.filter.categoryBits = GameConfig.BIT_BALL;
+        fdef.filter.maskBits = GameConfig.BIT_GROUND;
+        body.createFixture(fdef).setUserData("ball");
 
         // Box2D Camera
         b2dCamera = new OrthographicCamera();
