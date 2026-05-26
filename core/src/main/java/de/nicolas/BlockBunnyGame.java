@@ -3,12 +3,15 @@ package de.nicolas;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import de.nicolas.config.GameConfig;
 import de.nicolas.handlers.GameStateManager;
+import de.nicolas.handlers.MyInput;
+import de.nicolas.handlers.MyInputProcessor;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class BlockBunnyGame implements ApplicationListener {
@@ -24,6 +27,9 @@ public class BlockBunnyGame implements ApplicationListener {
 
     @Override
     public void create() {
+
+        Gdx.input.setInputProcessor(new MyInputProcessor());
+
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, GameConfig.V_WIDTH, GameConfig.V_HEIGHT);
@@ -35,13 +41,15 @@ public class BlockBunnyGame implements ApplicationListener {
 
     @Override
     public void render() {
-        ScreenUtils.clear(GameConfig.CORNFLOWER_BLUE);
+        // ScreenUtils.clear(GameConfig.CORNFLOWER_BLUE);
+        ScreenUtils.clear(Color.BLACK);
 
         accum += Gdx.graphics.getDeltaTime();
         while (accum >= STEP){
             accum -= STEP;
             gsm.update(STEP);
             gsm.render();
+            MyInput.update();
         }
     }
 

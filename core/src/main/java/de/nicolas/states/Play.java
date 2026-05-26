@@ -2,13 +2,13 @@ package de.nicolas.states;
 
 import static de.nicolas.config.GameConfig.PPM;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import de.nicolas.config.GameConfig;
 import de.nicolas.handlers.GameStateManager;
 import de.nicolas.handlers.MyContactListener;
+import de.nicolas.handlers.MyInput;
 
 public class Play extends GameState {
 
@@ -17,11 +17,16 @@ public class Play extends GameState {
 
     private OrthographicCamera b2dCamera;
 
+    private Body playerBody;
+    private MyContactListener contactListener;
+
     public Play(GameStateManager gsm){
         super(gsm);
 
         world = new World(new Vector2(0, -9.81f), true);
-        world.setContactListener(new MyContactListener());
+
+        contactListener = new MyContactListener();
+        world.setContactListener(contactListener);
 
         debugRenderer = new Box2DDebugRenderer();
 
@@ -37,32 +42,28 @@ public class Play extends GameState {
         FixtureDef fdef = new FixtureDef();
         fdef.shape = shape;
         fdef.filter.categoryBits = GameConfig.BIT_GROUND;
-        fdef.filter.maskBits = GameConfig.BIT_BOX | GameConfig.BIT_BALL;
+        fdef.filter.maskBits = GameConfig.BIT_PLAYER;
         body.createFixture(fdef).setUserData("ground");
 
-        // fallende Box erstellen
+        // fallender Player
         bdef.position.set(160 / PPM, 200 / PPM);
         bdef.type = BodyDef.BodyType.DynamicBody;
-        body = world.createBody(bdef);
+        playerBody = world.createBody(bdef);
 
         shape.setAsBox(5 / PPM, 5 / PPM);
 
         fdef.shape = shape;
-        fdef.filter.categoryBits = GameConfig.BIT_BOX;
+        fdef.filter.categoryBits = GameConfig.BIT_PLAYER;
         fdef.filter.maskBits = GameConfig.BIT_GROUND;
-        body.createFixture(fdef).setUserData("box");
+        playerBody.createFixture(fdef).setUserData("player");
 
-        // fallenden Ball erstellen
-        bdef.position.set(153 / PPM, 220 / PPM);
-        //bdef.type = BodyDef.BodyType.DynamicBody;
-        body = world.createBody(bdef);
-
-        CircleShape cShape = new CircleShape();
-        cShape.setRadius(5 / PPM);
-        fdef.shape = cShape;
-        fdef.filter.categoryBits = GameConfig.BIT_BALL;
+        // kreiere foot sensor
+        shape.setAsBox(2 / PPM, 2 / PPM, new Vector2(0, -5 / PPM),0);
+        fdef.shape = shape;
+        fdef.filter.categoryBits = GameConfig.BIT_PLAYER;
         fdef.filter.maskBits = GameConfig.BIT_GROUND;
-        body.createFixture(fdef).setUserData("ball");
+        fdef.isSensor = true;
+        playerBody.createFixture(fdef).setUserData("foot");
 
         // Box2D Camera
         b2dCamera = new OrthographicCamera();
@@ -72,11 +73,19 @@ public class Play extends GameState {
 
     @Override
     public void handleInput() {
-
+        // Spieler springt
+        if (MyInput.isPressed(MyInput.BUTTON2)){
+            if (contactListener.isPlayerOnGround()){
+                playerBody.applyForceToCenter(0, 200, true);
+            }
+        }
     }
 
     @Override
     public void update(float delta) {
+
+        handleInput();
+
         world.step(delta, 6, 2);
     }
 
