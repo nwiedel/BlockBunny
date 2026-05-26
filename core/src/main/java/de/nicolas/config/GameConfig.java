@@ -11,4 +11,7 @@ public class GameConfig {
     public static final int V_WIDTH = 320;
     public static final int V_HEIGHT = 240;
     public static final int SCALE = 2;
+
+    // Box2D Zeug
+    public static final float PPM = 100;
 }
