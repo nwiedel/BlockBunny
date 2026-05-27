@@ -4,7 +4,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 public class MyContactListener implements ContactListener {
 
-    private boolean playerOnGround;
+    private int numFootContacts;
 
     @Override
     public void beginContact(Contact contact) {
@@ -12,10 +12,10 @@ public class MyContactListener implements ContactListener {
         Fixture fb = contact.getFixtureB();
 
         if (fa.getUserData() != null && fa.getUserData().equals("foot")) {
-            playerOnGround = true;
+            numFootContacts++;
         }
         if (fb.getUserData() != null && fb.getUserData().equals("foot")) {
-            playerOnGround = true;
+            numFootContacts++;
         }
     }
 
@@ -25,15 +25,15 @@ public class MyContactListener implements ContactListener {
         Fixture fb = contact.getFixtureB();
 
         if (fa.getUserData() != null && fa.getUserData().equals("foot")) {
-            playerOnGround = false;
+            numFootContacts--;
         }
         if (fb.getUserData() != null && fb.getUserData().equals("foot")) {
-            playerOnGround = false;
+            numFootContacts--;
         }
     }
 
     public boolean isPlayerOnGround(){
-        return playerOnGround;
+        return numFootContacts > 0;
     }
 
     @Override

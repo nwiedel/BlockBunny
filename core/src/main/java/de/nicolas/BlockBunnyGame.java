@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import de.nicolas.config.GameConfig;
+import de.nicolas.handlers.Content;
 import de.nicolas.handlers.GameStateManager;
 import de.nicolas.handlers.MyInput;
 import de.nicolas.handlers.MyInputProcessor;
@@ -25,10 +26,15 @@ public class BlockBunnyGame implements ApplicationListener {
 
     private GameStateManager gsm;
 
+    public static Content res;
+
     @Override
     public void create() {
 
         Gdx.input.setInputProcessor(new MyInputProcessor());
+
+        res = new Content();
+        res.loadTexture("images/bunny.png", "bunny");
 
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
