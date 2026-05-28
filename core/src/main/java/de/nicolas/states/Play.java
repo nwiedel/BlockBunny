@@ -1,6 +1,8 @@
 package de.nicolas.states;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -8,7 +10,9 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import de.nicolas.config.GameConfig;
+import de.nicolas.entities.Crystal;
 import de.nicolas.entities.Player;
 import de.nicolas.handlers.GameStateManager;
 import de.nicolas.handlers.MyContactListener;
@@ -30,6 +34,7 @@ public class Play extends GameState {
     private OrthogonalTiledMapRenderer mapRenderer;
 
     private Player player;
+    private Array<Crystal> crystals;
 
     public Play(GameStateManager gsm){
         super(gsm);
@@ -45,6 +50,9 @@ public class Play extends GameState {
 
         // Tiles kreieren
         createTiles();
+
+        // Kristalle kreieren
+        createCrystals();
 
         // Box2D Camera
         b2dCamera = new OrthographicCamera();
@@ -70,6 +78,10 @@ public class Play extends GameState {
         world.step(delta, 6, 2);
 
         player.update(delta);
+
+        for (int i = 0; i < crystals.size; i++){
+            crystals.get(i).update(delta);
+        }
     }
 
     @Override
@@ -81,6 +93,10 @@ public class Play extends GameState {
 
         batch.setProjectionMatrix(camera.combined);
         player.render(batch);
+
+        for (int i = 0; i < crystals.size; i++){
+            crystals.get(i).render(batch);
+        }
 
         debugRenderer.render(world, b2dCamera.combined);
     }
@@ -174,6 +190,41 @@ public class Play extends GameState {
                 fdef.isSensor = false;
                 world.createBody(bdef).createFixture(fdef);
             }
+        }
+    }
+
+    private void createCrystals(){
+
+        crystals = new Array<>();
+
+        MapLayer layer = tiledMap.getLayers().get("crystals");
+
+        BodyDef bdef = new BodyDef();
+        FixtureDef fdef = new FixtureDef();
+
+        for (MapObject mapObject : layer.getObjects()){
+
+            bdef.type = BodyDef.BodyType.StaticBody;
+
+            float x = (float) mapObject.getProperties().get("x") / PPM;
+            float y = (float) mapObject.getProperties().get("y") / PPM;
+            bdef.position.set(x, y);
+
+            CircleShape circleShape = new CircleShape();
+            circleShape.setRadius(8 / PPM);
+
+            fdef.shape = circleShape;
+            fdef.isSensor = true;
+            fdef.filter.categoryBits = GameConfig.BIT_CRYSTAL;
+            fdef.filter.maskBits = GameConfig.BIT_PLAYER;
+
+            Body body = world.createBody(bdef);
+            body.createFixture(fdef);
+
+            Crystal crystal = new Crystal(body);
+            crystals.add(crystal);
+
+            body.setUserData(crystal);
         }
     }
 }
