@@ -22,6 +22,8 @@ import static de.nicolas.config.GameConfig.PPM;
 
 public class Play extends GameState {
 
+    private boolean debug = false;
+
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
@@ -98,8 +100,11 @@ public class Play extends GameState {
             crystals.get(i).render(batch);
         }
 
-        debugRenderer.render(world, b2dCamera.combined);
-    }
+        if (debug){
+            debugRenderer.render(world, b2dCamera.combined);
+        }
+
+    } 
 
     @Override
     public void dispose() {
@@ -112,9 +117,9 @@ public class Play extends GameState {
         FixtureDef fdef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
 
-        bdef.position.set(100 / PPM, 100 / PPM);
+        bdef.position.set(100 / PPM, 200 / PPM);
         bdef.type = BodyDef.BodyType.DynamicBody;
-        bdef.linearVelocity.set(1, 0);
+        bdef.linearVelocity.set(0.1f, 0);
         Body body = world.createBody(bdef);
 
         shape.setAsBox(13 / PPM, 13 / PPM);
