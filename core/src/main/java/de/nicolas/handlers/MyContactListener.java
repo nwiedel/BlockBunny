@@ -17,6 +17,10 @@ public class MyContactListener implements ContactListener {
         if (fb.getUserData() != null && fb.getUserData().equals("foot")) {
             numFootContacts++;
         }
+
+        if (fa.getUserData() != null && fa.getUserData().equals("crystal")) {
+            numFootContacts++;
+        }
     }
 
     @Override

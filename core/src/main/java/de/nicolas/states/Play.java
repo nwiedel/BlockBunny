@@ -67,7 +67,7 @@ public class Play extends GameState {
         // Spieler springt
         if (MyInput.isPressed(MyInput.BUTTON2)){
             if (contactListener.isPlayerOnGround()){
-                player.getBody().applyForceToCenter(0, 300, true);
+                player.getBody().applyForceToCenter(0, 250, true);
             }
         }
     }
@@ -104,7 +104,7 @@ public class Play extends GameState {
             debugRenderer.render(world, b2dCamera.combined);
         }
 
-    } 
+    }
 
     @Override
     public void dispose() {
@@ -224,7 +224,7 @@ public class Play extends GameState {
             fdef.filter.maskBits = GameConfig.BIT_PLAYER;
 
             Body body = world.createBody(bdef);
-            body.createFixture(fdef);
+            body.createFixture(fdef).setUserData("crystal");
 
             Crystal crystal = new Crystal(body);
             crystals.add(crystal);
