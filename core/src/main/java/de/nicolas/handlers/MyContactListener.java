@@ -1,10 +1,18 @@
 package de.nicolas.handlers;
 
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 
 public class MyContactListener implements ContactListener {
 
     private int numFootContacts;
+    private Array<Body>  bodiesToRemove;
+
+    public MyContactListener(){
+        super();
+
+        bodiesToRemove = new Array<>();
+    }
 
     @Override
     public void beginContact(Contact contact) {
@@ -19,7 +27,10 @@ public class MyContactListener implements ContactListener {
         }
 
         if (fa.getUserData() != null && fa.getUserData().equals("crystal")) {
-            numFootContacts++;
+            bodiesToRemove.add(fa.getBody());
+        }
+        if (fb.getUserData() != null && fb.getUserData().equals("crystal")) {
+            bodiesToRemove.add(fb.getBody());
         }
     }
 
@@ -38,6 +49,10 @@ public class MyContactListener implements ContactListener {
 
     public boolean isPlayerOnGround(){
         return numFootContacts > 0;
+    }
+
+    public Array<Body> getBodiesToRemove() {
+        return bodiesToRemove;
     }
 
     @Override

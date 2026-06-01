@@ -79,6 +79,16 @@ public class Play extends GameState {
 
         world.step(delta, 6, 2);
 
+        // Kristalle entfernen
+        Array<Body> bodies = contactListener.getBodiesToRemove();
+        for (int i = 0; i < bodies.size; i++){
+            Body b = bodies.get(i);
+            crystals.removeValue((Crystal)b.getUserData(), true);
+            world.destroyBody(b);
+            player.collectCrystals();
+        }
+        bodies.clear();
+
         player.update(delta);
 
         for (int i = 0; i < crystals.size; i++){
@@ -133,7 +143,7 @@ public class Play extends GameState {
         shape.setAsBox(13 / PPM, 2 / PPM, new Vector2(0, -13 / PPM),0);
         fdef.shape = shape;
         fdef.filter.categoryBits = GameConfig.BIT_PLAYER;
-        fdef.filter.maskBits = GameConfig.BIT_RED;
+        fdef.filter.maskBits = GameConfig.BIT_RED | GameConfig.BIT_CRYSTAL;
         fdef.isSensor = true;
         body.createFixture(fdef).setUserData("foot");
 
