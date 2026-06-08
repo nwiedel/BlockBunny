@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import de.nicolas.config.GameConfig;
 import de.nicolas.entities.Crystal;
+import de.nicolas.entities.HUD;
 import de.nicolas.entities.Player;
 import de.nicolas.handlers.GameStateManager;
 import de.nicolas.handlers.MyContactListener;
@@ -38,6 +39,8 @@ public class Play extends GameState {
     private Player player;
     private Array<Crystal> crystals;
 
+    private HUD hud;
+
     public Play(GameStateManager gsm){
         super(gsm);
 
@@ -60,6 +63,9 @@ public class Play extends GameState {
         b2dCamera = new OrthographicCamera();
         b2dCamera.setToOrtho(false,
             GameConfig.V_WIDTH / PPM, GameConfig.V_HEIGHT / PPM);
+
+        // HUD setzen
+        hud = new HUD(player);
     }
 
     @Override
@@ -69,6 +75,11 @@ public class Play extends GameState {
             if (contactListener.isPlayerOnGround()){
                 player.getBody().applyForceToCenter(0, 250, true);
             }
+        }
+
+        // Block ändern
+        if (MyInput.isPressed(MyInput.BUTTON1)){
+            switchBlocks();
         }
     }
 
@@ -110,10 +121,13 @@ public class Play extends GameState {
             crystals.get(i).render(batch);
         }
 
+        // HUD zeichnen
+        batch.setProjectionMatrix(hudCamera.combined);
+        hud.render(batch);
+
         if (debug){
             debugRenderer.render(world, b2dCamera.combined);
         }
-
     }
 
     @Override
@@ -241,5 +255,36 @@ public class Play extends GameState {
 
             body.setUserData(crystal);
         }
+    }
+
+    private void switchBlocks(){
+
+        Filter filter = player.getBody().getFixtureList().first().getFilterData();
+        short bits = filter.maskBits;
+
+        // zur nächsten Farbe wwechseln
+        // rot -> grün -> blau -> rot
+        if ((bits & GameConfig.BIT_RED) != 0){
+            bits &= ~GameConfig.BIT_RED;
+            bits |= GameConfig.BIT_GREEN;
+        }
+        else if ((bits & GameConfig.BIT_GREEN) != 0){
+            bits &= ~GameConfig.BIT_GREEN;
+            bits |= GameConfig.BIT_BLUE;
+        }
+        else if ((bits & GameConfig.BIT_BLUE) != 0){
+            bits &= ~GameConfig.BIT_BLUE;
+            bits |= GameConfig.BIT_RED;
+        }
+
+        // Mask bit setzen
+        filter.maskBits = bits;
+        player.getBody().getFixtureList().first().setFilterData(filter);
+
+        // Mask bit für Foot sensor
+        filter = player.getBody().getFixtureList().get(1).getFilterData();
+        bits &= ~GameConfig.BIT_CRYSTAL;
+        filter.maskBits = bits;
+        player.getBody().getFixtureList().get(1).setFilterData(filter);
     }
 }

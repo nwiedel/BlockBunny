@@ -36,6 +36,7 @@ public class BlockBunnyGame implements ApplicationListener {
         res = new Content();
         res.loadTexture("images/bunny.png", "bunny");
         res.loadTexture("images/crystal.png", "crystal");
+        res.loadTexture("images/hud.png", "hud");
 
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
