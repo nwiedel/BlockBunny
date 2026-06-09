@@ -23,7 +23,7 @@ import static de.nicolas.config.GameConfig.PPM;
 
 public class Play extends GameState {
 
-    private boolean debug = false;
+    private boolean debug = true;
 
     private World world;
     private Box2DDebugRenderer debugRenderer;
@@ -110,6 +110,14 @@ public class Play extends GameState {
     @Override
     public void render() {
 
+        // Kameraposition setzen
+        camera.position.set(
+          player.getPosition().x * PPM + GameConfig.V_WIDTH / 4,
+          GameConfig.V_HEIGHT / 2,
+          0
+        );
+        camera.update();
+
         // Map zeichnen
         mapRenderer.setView(camera);
         mapRenderer.render();
@@ -143,7 +151,7 @@ public class Play extends GameState {
 
         bdef.position.set(100 / PPM, 200 / PPM);
         bdef.type = BodyDef.BodyType.DynamicBody;
-        bdef.linearVelocity.set(0.1f, 0);
+        bdef.linearVelocity.set(0.5f, 0);
         Body body = world.createBody(bdef);
 
         shape.setAsBox(13 / PPM, 13 / PPM);
@@ -181,7 +189,7 @@ public class Play extends GameState {
         layer = (TiledMapTileLayer) tiledMap.getLayers().get("green");
         createLayer(layer, GameConfig.BIT_GREEN);
 
-        layer = (TiledMapTileLayer) tiledMap.getLayers().get("red");
+        layer = (TiledMapTileLayer) tiledMap.getLayers().get("blue");
         createLayer(layer, GameConfig.BIT_BLUE);
     }
 
